@@ -4,18 +4,24 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using TourBookingManagment.Database;
+using TourBookingManagment.Services;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add CORS Support
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")  // Allow Angular frontend on this port
-              .AllowAnyHeader()                     // Allow any header
-              .AllowAnyMethod()                     // Allow any HTTP method (GET, POST, etc.)
-              .AllowCredentials();                  // Allow credentials (cookies, headers, etc.)
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "http://localhost:5173",
+                "https://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -30,7 +36,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Tour Booking API",
         Version = "v1",
-        Description = "API documentation for Tour Booking Management System"
+        Description = "API documentation for Tour Booking Management System with Payment Integration"
     });
 
     // JWT Security Definition for Swagger
@@ -63,8 +69,20 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add Payment Integration Database Context
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add Memory Cache
+builder.Services.AddMemoryCache();
+
+// Add Payment Integration Services
+builder.Services.AddScoped<IStripeService, StripeService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddHttpClient();
+
 // JWT Authentication Configuration
-var key = Encoding.ASCII.GetBytes(
+var jwtKey = Encoding.ASCII.GetBytes(
     builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")
 );
 
@@ -74,7 +92,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
+            IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true
@@ -98,22 +116,22 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Middleware for HTTPS redirection (optional based on your setup)
+// Middleware for HTTPS redirection
 app.UseHttpsRedirection();
 
 // Use CORS Policy before authentication and authorization
-app.UseCors("AllowFrontend");  // Ensure this comes before Authentication & Authorization
+app.UseCors("AllowAngularApp");
 
 // Enable Authentication and Authorization
-app.UseAuthentication();  // Ensure JWT authentication is enabled
-app.UseAuthorization();   // Enable authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Rewrite Middleware for Angular Frontend (optional, if hosting frontend on the same server)
 app.Use(async (context, next) =>
 {
     if (!context.Request.Path.StartsWithSegments("/api") && context.Request.Path != "/")
     {
-        context.Request.Path = "/";  // Redirect any non-API path to the frontend
+        context.Request.Path = "/"; // Redirect any non-API path to the frontend
     }
     await next();
 });
