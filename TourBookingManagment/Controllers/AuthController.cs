@@ -48,21 +48,21 @@ namespace TourBookingManagment.Controllers
                 return Unauthorized("Invalid credentials.");
             }
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, user.Username ?? string.Empty)
-            };
+                var claims = new[]
+                {
+            new Claim(ClaimTypes.Name, user.Username ?? string.Empty)
+        };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? string.Empty));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? string.Empty));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds
-            );
+                var token = new JwtSecurityToken(
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: creds
+                );
 
-            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-        }
+                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+            }
     }
 }

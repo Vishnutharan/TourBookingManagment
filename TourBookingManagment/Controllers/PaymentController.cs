@@ -19,10 +19,7 @@ namespace TourBookingManagment.Controllers
         private readonly ICurrencyService _currencyService;
         private readonly ILogger<PaymentController> _logger;
 
-        public PaymentController(
-            IStripeService stripeService,
-            ICurrencyService currencyService,
-            ILogger<PaymentController> logger)
+        public PaymentController(IStripeService stripeService,ICurrencyService currencyService,ILogger<PaymentController> logger)
         {
             _stripeService = stripeService;
             _currencyService = currencyService;
@@ -30,8 +27,7 @@ namespace TourBookingManagment.Controllers
         }
 
         [HttpPost("create-checkout-session")]
-        public async Task<ActionResult<PaymentResponseDto>> CreateCheckoutSession(
-            [FromBody] PaymentRequestDto request)
+        public async Task<ActionResult<PaymentResponseDto>> CreateCheckoutSession([FromBody] PaymentRequestDto request)
         {
             try
             {
