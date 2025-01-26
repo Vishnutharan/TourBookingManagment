@@ -11,16 +11,10 @@ namespace TourBookingManagment.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(AppDbContext context, IConfiguration config) : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IConfiguration _config;
-
-        public AuthController(AppDbContext context, IConfiguration config)
-        {
-            _context = context;
-            _config = config;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly IConfiguration _config = config;
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDto request)
@@ -48,21 +42,30 @@ namespace TourBookingManagment.Controllers
                 return Unauthorized("Invalid credentials.");
             }
 
-                var claims = new[]
-                {
-            new Claim(ClaimTypes.Name, user.Username ?? string.Empty)
-        };
-
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? string.Empty));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds
-                );
-
-                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+            // In AuthController Login method
+            var claims = new[]
+            {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Changed claim type
+             new Claim(JwtRegisteredClaimNames.Name, user.Username)
+            };
+            var keyText = _config["Jwt:Key"];
+            if (string.IsNullOrEmpty(keyText))
+            {
+                return StatusCode(500, "JWT key is not configured.");
             }
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyText));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+            issuer: _config["Jwt:Issuer"],
+            audience: _config["Jwt:Audience"],
+            expires: DateTime.Now.AddHours(1),
+            claims: claims,
+            signingCredentials: creds
+         );
+
+            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+        }
+
     }
 }

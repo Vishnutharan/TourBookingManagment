@@ -2,9 +2,10 @@
 {
     public class CurrencyConversionModel
     {
-        public decimal Rate { get; set; }
         public string FromCurrency { get; set; }
         public string ToCurrency { get; set; }
-        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+        public decimal Amount { get; set; }
+        public decimal ConvertedAmount { get; set; }
+        public decimal ExchangeRate { get; set; }
     }
 }

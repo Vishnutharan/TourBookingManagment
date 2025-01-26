@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using TourBookingManagment.Model;
-namespace TourBookingManagment.Services
 
+namespace TourBookingManagment.Services
 {
     public interface ICurrencyService
     {

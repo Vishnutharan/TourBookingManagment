@@ -7,6 +7,7 @@ using TourBookingManagment.Model;
 using TourBookingManagment.DTOs;
 using TourBookingManagment.Services;
 using System.Threading.Tasks;
+using Stripe;
 
 
 namespace TourBookingManagment.Controllers
@@ -47,10 +48,12 @@ namespace TourBookingManagment.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating checkout session");
+                _logger.LogError(ex, "Error creating checkout session: {ExceptionMessage}", ex.Message);
                 return StatusCode(500, new { message = "An error occurred while processing your request" });
             }
         }
+
+
 
         [HttpPost("confirm-payment")]
         public async Task<ActionResult<PaymentResponseDto>> ConfirmPayment(
