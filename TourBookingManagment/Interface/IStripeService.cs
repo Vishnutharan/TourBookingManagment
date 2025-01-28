@@ -1,9 +1,7 @@
-﻿using System.Transactions;
-using TourBookingManagment.DTOs;
+﻿using TourBookingManagment.DTOs;
 using TourBookingManagment.Model;
-using System.Threading.Tasks;
-using TourBookingManagment.Services;
-namespace TourBookingManagment.Services
+
+namespace TourBookingManagment.Interface
 {
     public interface IStripeService
     {

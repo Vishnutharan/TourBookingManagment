@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using TourBookingManagment.Interface;
 
 
 namespace TourBookingManagment.Services

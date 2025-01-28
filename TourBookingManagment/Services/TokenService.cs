@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TourBookingManagment.Interface;
 using TourBookingManagment.Model;
 
 namespace TourBookingManagment.Services
@@ -19,7 +20,7 @@ namespace TourBookingManagment.Services
         {
             var claims = new[]
             {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new Claim(ClaimTypes.Name, user.Username)
         };
 

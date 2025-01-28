@@ -8,6 +8,7 @@ using TourBookingManagment.Services;
 using Stripe;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using TourBookingManagment.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<UserService>();

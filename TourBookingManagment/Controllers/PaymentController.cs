@@ -8,6 +8,7 @@ using TourBookingManagment.DTOs;
 using TourBookingManagment.Services;
 using System.Threading.Tasks;
 using Stripe;
+using TourBookingManagment.Interface;
 
 
 namespace TourBookingManagment.Controllers

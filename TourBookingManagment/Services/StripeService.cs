@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Stripe;
 using TourBookingManagment.Database;
 using TourBookingManagment.DTOs;
+using TourBookingManagment.Interface;
 using TourBookingManagment.Model;
 
 namespace TourBookingManagment.Services
