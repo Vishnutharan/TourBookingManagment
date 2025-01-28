@@ -6,10 +6,17 @@ using System.Text;
 using TourBookingManagment.Database;
 using TourBookingManagment.Services;
 using Stripe;
+using Newtonsoft.Json;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<UserService>();
 
-// Add CORS Support
+// Add services to the container.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<UserService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -25,10 +32,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add Controllers
 builder.Services.AddControllers();
-
-// Configure Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -39,7 +43,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API documentation for Tour Booking Management System with Payment Integration"
     });
 
-    // JWT Security Definition for Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
@@ -65,79 +68,85 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure Entity Framework and Database Context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Payment Integration Database Context
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Memory Cache
 builder.Services.AddMemoryCache();
-
-// Add Payment Integration Services
 builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddHttpClient();
 
-// JWT Authentication Configuration
 var jwtKey = Encoding.ASCII.GetBytes(
     builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")
 );
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+        .AddJwtBearer(options =>
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true
+        options.TokenValidationParameters = new TokenValidationParameters
+         {
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        NameClaimType = ClaimTypes.NameIdentifier // Force this mapping
         };
-    });
 
-// Add Authorization
+    // Keep existing events configuration
+// Rest of events configuration
+options.Events = new JwtBearerEvents
+       {
+           OnAuthenticationFailed = context =>
+           {
+               Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+               return Task.CompletedTask;
+           },
+           OnChallenge = context =>
+           {
+               if (!context.Response.HasStarted)
+               {
+                   context.Response.StatusCode = 401;
+                   context.Response.ContentType = "application/json";
+                   var result = JsonConvert.SerializeObject(new { error = "You are not authorized" });
+                   return context.Response.WriteAsync(result);
+               }
+               return Task.CompletedTask;
+           },
+       };
+   });
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure Middleware
 if (app.Environment.IsDevelopment())
 {
-    // Enable Swagger UI in Development
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tour Booking API v1");
-        c.RoutePrefix = "swagger"; // Serve Swagger UI at /swagger
+        c.RoutePrefix = "swagger";
     });
 }
 
-// Middleware for HTTPS redirection
 app.UseHttpsRedirection();
-
-// Use CORS Policy before authentication and authorization
 app.UseCors("AllowAngularApp");
-
-// Enable Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Rewrite Middleware for Angular Frontend (optional, if hosting frontend on the same server)
 app.Use(async (context, next) =>
 {
     if (!context.Request.Path.StartsWithSegments("/api") && context.Request.Path != "/")
     {
-        context.Request.Path = "/"; // Redirect any non-API path to the frontend
+        context.Request.Path = "/";
     }
     await next();
 });
 
-// Map Controllers to endpoints
 app.MapControllers();
 
-// Run the application
 app.Run();

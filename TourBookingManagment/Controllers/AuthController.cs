@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TourBookingManagment.Database;
+using TourBookingManagment.DTOs;
 using TourBookingManagment.Model;
 
 namespace TourBookingManagment.Controllers
@@ -42,12 +43,14 @@ namespace TourBookingManagment.Controllers
                 return Unauthorized("Invalid credentials.");
             }
 
-            // In AuthController Login method
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Changed claim type
-             new Claim(JwtRegisteredClaimNames.Name, user.Username)
+              new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()), // Must match User.FindFirstValue()
+              new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()), // Optional but consistent
+              new Claim(JwtRegisteredClaimNames.Name, user.Username)
             };
+
+            // Rest of token generation code remains same
             var keyText = _config["Jwt:Key"];
             if (string.IsNullOrEmpty(keyText))
             {

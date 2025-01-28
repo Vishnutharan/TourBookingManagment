@@ -5,6 +5,9 @@ namespace TourBookingManagment.Model
 {
     public class Transaction
     {
+        [ForeignKey("User")]
+        public int UserId { get; set; }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
