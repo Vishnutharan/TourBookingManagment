@@ -14,39 +14,6 @@ namespace TourBookingManagment.Model
         public int FeaturedScore { get; set; }
     }
      
-    public class Review
-    {
-        [ForeignKey("User")]
-        public int UserId { get; set; }
-
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-
-        [Required]
-        public int TourPackageId { get; set; }
-
-        [Required]
-        [MaxLength(100)]
-        public string? CustomerName { get; set; }
-
-        [Required]
-        [Range(1, 5)]
-        public int Rating { get; set; }
-
-        [Required]
-        [MaxLength(1000)]
-        public string? ReviewText { get; set; } // Add nullability
-
-        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
-
-        [MaxLength(500)]
-        public string? UserImage { get; set; } // Optional property for user avatar
-
-        [Required]
-        public DateTime Date { get; set; }
-    }
-
     public class TouristPlace
     {
         [ForeignKey("User")]

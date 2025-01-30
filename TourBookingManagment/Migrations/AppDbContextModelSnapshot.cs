@@ -73,6 +73,45 @@ namespace TourBookingManagment.Migrations
                     b.ToTable("BookingDetails");
                 });
 
+            modelBuilder.Entity("TourBookingManagment.Model.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReviewText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("TourPackageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserImage")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Reviews", (string)null);
+                });
+
             modelBuilder.Entity("TourBookingManagment.Model.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -223,8 +262,7 @@ namespace TourBookingManagment.Migrations
 
             modelBuilder.Entity("TourBookingManagment.Model.User", b =>
                 {
-                    b.Navigation("UserDetails")
-                        .IsRequired();
+                    b.Navigation("UserDetails");
                 });
 #pragma warning restore 612, 618
         }
