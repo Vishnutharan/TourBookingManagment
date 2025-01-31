@@ -12,8 +12,15 @@ namespace TourBookingManagment.Interface
     {
         public string? GetUserIdFromToken(ClaimsPrincipal user)
         {
-            return user.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? user.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                        user.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            return userId;
         }
     }
 }

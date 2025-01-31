@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        Task SendBookingNotificationAsync(string toEmail, string subject, string body); // No access modifier, semicolon at the end
+        Task SendBookingNotificationAsync(string toEmail, string subject, string body);
     }
 }
