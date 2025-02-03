@@ -28,7 +28,8 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IStripeService, StripeService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
-
+//builder.Services.AddScoped<ICountryService, CountryService>();
+//builder.Services.AddScoped<ITouristPlaceService, TouristPlaceService>();
 // SignalR Configuration
 builder.Services.AddSignalR();
 

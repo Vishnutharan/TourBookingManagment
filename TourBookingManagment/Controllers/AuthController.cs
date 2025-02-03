@@ -62,13 +62,12 @@ namespace TourBookingManagment.Controllers
             var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddHours(3),
             claims: claims,
             signingCredentials: creds
          );
 
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
-
     }
 }

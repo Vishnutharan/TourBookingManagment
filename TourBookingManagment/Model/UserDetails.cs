@@ -6,10 +6,12 @@ namespace TourBookingManagment.Model
     public class UserDetails
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserDetailsID { get; set; }
 
         [ForeignKey("User")]
         public int UserId { get; set; }
+
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string? Email { get; set; } = string.Empty;
@@ -24,7 +26,7 @@ namespace TourBookingManagment.Model
         public string Country { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Navigation property
-        public virtual User? User { get; set; }
+        public virtual User User { get; set; }
     }
+
 }

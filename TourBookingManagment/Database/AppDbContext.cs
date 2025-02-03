@@ -14,6 +14,9 @@ namespace TourBookingManagment.Database
         public DbSet<BookingDetails> BookingDetails { get; set; }
         public DbSet<TourBookingManagment.Model.Review> Reviews { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<TouristPlace> TouristPlaces { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
