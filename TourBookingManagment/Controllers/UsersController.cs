@@ -23,15 +23,67 @@ namespace TourBookingManagment.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Check for both JWT standard claim and custom claim
-            var userIdClaim = User.Claims.FirstOrDefault(c =>
-                c.Type == ClaimTypes.NameIdentifier ||
-                c.Type == "userId" ||
-                c.Type == "sub");
-
-            // If no user ID claim is found in the token, create a new user
-            if (userIdClaim == null)
+            // Check if userId is passed directly in the request body (from the frontend)
+            if (userDto.UserId != 0)
             {
+                // If userId exists in the request, update the user
+                var existingUser = await _context.Users
+                    .Include(u => u.UserDetails)
+                    .FirstOrDefaultAsync(u => u.UserId == userDto.UserId);
+
+                if (existingUser != null)
+                {
+                    // If UserDetails is null, initialize it
+                    if (existingUser.UserDetails == null)
+                    {
+                        existingUser.UserDetails = new UserDetails
+                        {
+                            UserId = existingUser.UserId,
+                            FirstName = userDto.FirstName,
+                            LastName = userDto.LastName,
+                            Email = userDto.Email,
+                            DateOfBirth = userDto.DateOfBirth,
+                            Gender = userDto.Gender,
+                            Nationality = userDto.Nationality,
+                            Phone = userDto.Phone,
+                            Street = userDto.Street,
+                            City = userDto.City,
+                            State = userDto.State,
+                            ZipCode = userDto.ZipCode,
+                            Country = userDto.Country,
+                            CreatedAt = DateTime.Now
+                        };
+
+                        _context.UserDetails.Add(existingUser.UserDetails);
+                    }
+                    else
+                    {
+                        // Update existing UserDetails
+                        existingUser.UserDetails.FirstName = userDto.FirstName;
+                        existingUser.UserDetails.LastName = userDto.LastName;
+                        existingUser.UserDetails.Email = userDto.Email;
+                        existingUser.UserDetails.DateOfBirth = userDto.DateOfBirth;
+                        existingUser.UserDetails.Gender = userDto.Gender;
+                        existingUser.UserDetails.Nationality = userDto.Nationality;
+                        existingUser.UserDetails.Phone = userDto.Phone;
+                        existingUser.UserDetails.Street = userDto.Street;
+                        existingUser.UserDetails.City = userDto.City;
+                        existingUser.UserDetails.State = userDto.State;
+                        existingUser.UserDetails.ZipCode = userDto.ZipCode;
+                        existingUser.UserDetails.Country = userDto.Country;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    return Ok(new { message = "User details updated successfully!" });
+                }
+                else
+                {
+                    return NotFound(new { message = "User not found!" });
+                }
+            }
+            else
+            {
+                // If userId is not provided, create a new user
                 var newUser = new User
                 {
                     Username = userDto.Username,
@@ -57,60 +109,9 @@ namespace TourBookingManagment.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "User created successfully!", userId = newUser.UserId });
             }
-
-            // If user ID claim exists, update existing user
-            int userId;
-            if (!int.TryParse(userIdClaim.Value, out userId))
-                return BadRequest(new { message = "Invalid user ID format" });
-
-            var existingUser = await _context.Users
-                .Include(u => u.UserDetails)
-                .FirstOrDefaultAsync(u => u.UserId == userId);
-
-            if (existingUser == null)
-                return NotFound(new { message = "User not found" });
-
-            // Update user details
-            if (existingUser.UserDetails == null)
-            {
-                existingUser.UserDetails = new UserDetails
-                {
-                    UserId = userId,
-                    FirstName = userDto.FirstName,
-                    LastName = userDto.LastName,
-                    Email = userDto.Email,
-                    DateOfBirth = userDto.DateOfBirth,
-                    Gender = userDto.Gender,
-                    Nationality = userDto.Nationality,
-                    Phone = userDto.Phone,
-                    Street = userDto.Street,
-                    City = userDto.City,
-                    State = userDto.State,
-                    ZipCode = userDto.ZipCode,
-                    Country = userDto.Country,
-                    CreatedAt = DateTime.Now
-                };
-                _context.UserDetails.Add(existingUser.UserDetails);
-            }
-            else
-            {
-                existingUser.UserDetails.FirstName = userDto.FirstName;
-                existingUser.UserDetails.LastName = userDto.LastName;
-                existingUser.UserDetails.Email = userDto.Email;
-                existingUser.UserDetails.DateOfBirth = userDto.DateOfBirth;
-                existingUser.UserDetails.Gender = userDto.Gender;
-                existingUser.UserDetails.Nationality = userDto.Nationality;
-                existingUser.UserDetails.Phone = userDto.Phone;
-                existingUser.UserDetails.Street = userDto.Street;
-                existingUser.UserDetails.City = userDto.City;
-                existingUser.UserDetails.State = userDto.State;
-                existingUser.UserDetails.ZipCode = userDto.ZipCode;
-                existingUser.UserDetails.Country = userDto.Country;
-            }
-
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "User details updated successfully!" });
         }
+
+
         // Add these methods to your existing UsersController class
 
         [HttpGet]

@@ -10,6 +10,7 @@ using TourBookingManagment.Interface;
 using TourBookingManagment.Hub;
 using Newtonsoft.Json;
 using Stripe;
+using TourBookingManagment.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,7 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Swagger Configuration
 builder.Services.AddSwaggerGen(c =>
