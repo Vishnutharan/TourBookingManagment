@@ -16,6 +16,7 @@ namespace TourBookingManagment.Database
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<TouristPlace> TouristPlaces { get; set; }
+        public DbSet<Coupons> Coupons { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
