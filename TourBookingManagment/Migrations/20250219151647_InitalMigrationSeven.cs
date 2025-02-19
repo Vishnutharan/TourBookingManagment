@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TourBookingManagment.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitalMigrationSeven : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,16 +39,35 @@ namespace TourBookingManagment.Migrations
                 name: "Countries",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FeaturedScore = table.Column<int>(type: "int", nullable: false)
+                    CountryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FeaturedScore = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Countries", x => x.Id);
+                    table.PrimaryKey("PK_Countries", x => x.CountryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Coupons",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    DiscountPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MinimumAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MaximumDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UsageLimit = table.Column<int>(type: "int", nullable: false),
+                    UsageCount = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Coupons", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -87,38 +106,6 @@ namespace TourBookingManagment.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TouristPlaces",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    CountryId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PlaceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    Highlights = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BestTimeToVisit = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HotelName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RoomType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SpecialRequests = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    NumberOfRooms = table.Column<int>(type: "int", nullable: true),
-                    OccupancyDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TransportationMode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TravelDuration = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TravelCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TouristPlaces", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -154,6 +141,48 @@ namespace TourBookingManagment.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TouristPlaces",
+                columns: table => new
+                {
+                    PlaceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PlaceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CountryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Highlights = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BestTimeToVisit = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HotelName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RoomType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SpecialRequests = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NumberOfRooms = table.Column<int>(type: "int", nullable: true),
+                    OccupancyDetails = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransportationMode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TravelDuration = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TravelCost = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    GuideName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Experience = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LanguagesSpoken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Specialization = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TouristPlaces", x => x.PlaceId);
+                    table.ForeignKey(
+                        name: "FK_TouristPlaces_Countries_CountryId",
+                        column: x => x.CountryId,
+                        principalTable: "Countries",
+                        principalColumn: "CountryId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserDetails",
                 columns: table => new
                 {
@@ -186,6 +215,11 @@ namespace TourBookingManagment.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_TouristPlaces_CountryId",
+                table: "TouristPlaces",
+                column: "CountryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_StripePaymentIntentId",
                 table: "Transactions",
                 column: "StripePaymentIntentId",
@@ -205,7 +239,7 @@ namespace TourBookingManagment.Migrations
                 name: "BookingDetails");
 
             migrationBuilder.DropTable(
-                name: "Countries");
+                name: "Coupons");
 
             migrationBuilder.DropTable(
                 name: "Notifications");
@@ -221,6 +255,9 @@ namespace TourBookingManagment.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserDetails");
+
+            migrationBuilder.DropTable(
+                name: "Countries");
 
             migrationBuilder.DropTable(
                 name: "Users");

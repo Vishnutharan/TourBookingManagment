@@ -1,146 +1,84 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using TourBookingManagment.Model;
-//using TourBookingManagment.Services;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using TourBookingManagment.Database;
+using TourBookingManagment.Model;
+using System.Text.Json; // Required for JSON serialization
 
-//namespace TourBookingManagment.Controllers
-//{
-//    [ApiController]
-//    [Route("api/[controller]")]
-//    public class TouristPlacesController : ControllerBase
-//    {
-//        private readonly ITouristPlaceService _touristPlaceService;
-//        private readonly ILogger<TouristPlacesController> _logger;
+namespace TourBookingManagment.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TouristPlacesController : ControllerBase
+    {
+        private readonly AppDbContext _context;
 
-//        public TouristPlacesController(ITouristPlaceService touristPlaceService, ILogger<TouristPlacesController> logger)
-//        {
-//            _touristPlaceService = touristPlaceService;
-//            _logger = logger;
-//        }
+        public TouristPlacesController(AppDbContext context)
+        {
+            _context = context;
+        }
 
-//        // GET: api/TouristPlaces
-//        [HttpGet]
-//        public async Task<ActionResult<IEnumerable<TouristPlace>>> GetTouristPlaces()
-//        {
-//            try
-//            {
-//                var places = await _touristPlaceService.GetAllPlacesAsync();
-//                return Ok(places);
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error getting all tourist places");
-//                return StatusCode(500, "Internal server error while retrieving tourist places");
-//            }
-//        }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TouristPlace>>> GetTouristPlaces()
+        {
+            return await _context.TouristPlaces.ToListAsync();
+        }
 
-//        // GET: api/TouristPlaces/5
-//        [HttpGet("{id}")]
-//        public async Task<ActionResult<TouristPlace>> GetTouristPlace(string id)
-//        {
-//            try
-//            {
-//                var place = await _touristPlaceService.GetPlaceByIdAsync(id);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TouristPlace>> GetTouristPlace(int id)
+        {
+            var touristPlace = await _context.TouristPlaces.FindAsync(id);
+            if (touristPlace == null) return NotFound();
+            return touristPlace;
+        }
 
-//                if (place == null)
-//                {
-//                    return NotFound($"Tourist place with ID {id} not found");
-//                }
+        [HttpPost]
+        public async Task<ActionResult<TouristPlace>> PostTouristPlace(TouristPlace touristPlace)
+        {
+            _context.TouristPlaces.Add(touristPlace);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetTouristPlace), new { id = touristPlace.PlaceId }, touristPlace);
+        }
 
-//                return Ok(place);
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error getting tourist place with id {Id}", id);
-//                return StatusCode(500, "Internal server error while retrieving the tourist place");
-//            }
-//        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTouristPlace(int id, TouristPlace touristPlace)
+        {
+            if (id != touristPlace.PlaceId) return BadRequest();
+            _context.Entry(touristPlace).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
-//        // GET: api/TouristPlaces/country/5
-//        [HttpGet("country/{countryId}")]
-//        public async Task<ActionResult<IEnumerable<TouristPlace>>> GetPlacesByCountry(string countryId)
-//        {
-//            try
-//            {
-//                var places = await _touristPlaceService.GetPlacesByCountryAsync(countryId);
-//                return Ok(places);
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error getting tourist places for country {CountryId}", countryId);
-//                return StatusCode(500, "Internal server error while retrieving tourist places");
-//            }
-//        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTouristPlace(int id)
+        {
+            var touristPlace = await _context.TouristPlaces.FindAsync(id);
+            if (touristPlace == null) return NotFound();
+            _context.TouristPlaces.Remove(touristPlace);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
-//        // POST: api/TouristPlaces
-//        [HttpPost]
-//        public async Task<ActionResult<TouristPlace>> CreateTouristPlace(TouristPlace touristPlace)
-//        {
-//            try
-//            {
-//                if (!ModelState.IsValid)
-//                {
-//                    return BadRequest(ModelState);
-//                }
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
 
-//                var createdPlace = await _touristPlaceService.CreatePlaceAsync(touristPlace);
-//                return CreatedAtAction(nameof(GetTouristPlace), new { id = createdPlace.PlaceId }, createdPlace);
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error creating tourist place");
-//                return StatusCode(500, "Internal server error while creating the tourist place");
-//            }
-//        }
+            var filePath = Path.Combine("wwwroot", "uploads", file.FileName);
 
-//        // PUT: api/TouristPlaces/5
-//        [HttpPut("{id}")]
-//        public async Task<IActionResult> UpdateTouristPlace(string id, TouristPlace touristPlace)
-//        {
-//            try
-//            {
+            // Ensure the directory exists
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-//                if (placeId.ToString() != touristPlace.PlaceId.ToString())
-//                {
-//                    return BadRequest("ID mismatch");
-//                }
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
 
-
-//                if (!ModelState.IsValid)
-//                {
-//                    return BadRequest(ModelState);
-//                }
-
-//                var updatedPlace = await _touristPlaceService.UpdatePlaceAsync(id, touristPlace);
-
-//                if (updatedPlace == null)
-//                {
-//                    return NotFound($"Tourist place with ID {id} not found");
-//                }
-
-//                return Ok(updatedPlace);
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error updating tourist place with id {Id}", id);
-//                return StatusCode(500, "Internal server error while updating the tourist place");
-//            }
-//        }
-
-
-//        // DELETE: api/TouristPlaces/5
-//        [HttpDelete("{id}")]
-//        public async Task<IActionResult> DeleteTouristPlace(string id)
-//        {
-//            try
-//            {
-//                await _touristPlaceService.DeletePlaceAsync(id);
-//                return NoContent();
-//            }
-//            catch (Exception ex)
-//            {
-//                _logger.LogError(ex, "Error deleting tourist place with id {Id}", id);
-//                return StatusCode(500, "Internal server error while deleting the tourist place");
-//            }
-//        }
-//    }
-//}
+            // Return the file path or URL as response
+            return Ok($"uploads/{file.FileName}");
+        }
+    }
+}

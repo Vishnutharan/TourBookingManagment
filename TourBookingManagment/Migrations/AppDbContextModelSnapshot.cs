@@ -75,25 +75,25 @@ namespace TourBookingManagment.Migrations
 
             modelBuilder.Entity("TourBookingManagment.Model.Country", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("CountryId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FeaturedScore")
-                        .HasColumnType("int");
+                    b.Property<decimal>("FeaturedScore")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
+                    b.HasKey("CountryId");
 
                     b.ToTable("Countries");
                 });
@@ -205,8 +205,11 @@ namespace TourBookingManagment.Migrations
 
             modelBuilder.Entity("TourBookingManagment.Model.TouristPlace", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("PlaceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlaceId"));
 
                     b.Property<string>("BestTimeToVisit")
                         .HasColumnType("nvarchar(max)");
@@ -217,16 +220,29 @@ namespace TourBookingManagment.Migrations
                     b.Property<DateTime?>("CheckOutDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ContactNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CountryId")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Duration")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Experience")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GuideName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.PrimitiveCollection<string>("Highlights")
@@ -238,7 +254,8 @@ namespace TourBookingManagment.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.PrimitiveCollection<string>("LanguagesSpoken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("NumberOfRooms")
@@ -247,7 +264,8 @@ namespace TourBookingManagment.Migrations
                     b.Property<string>("OccupancyDetails")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PlaceId")
+                    b.Property<string>("PlaceName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
@@ -259,6 +277,10 @@ namespace TourBookingManagment.Migrations
                     b.Property<string>("SpecialRequests")
                         .HasColumnType("nvarchar(max)");
 
+                    b.PrimitiveCollection<string>("Specialization")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TransportationMode")
                         .HasColumnType("nvarchar(max)");
 
@@ -268,10 +290,9 @@ namespace TourBookingManagment.Migrations
                     b.Property<string>("TravelDuration")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.HasKey("PlaceId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("CountryId");
 
                     b.ToTable("TouristPlaces");
                 });
@@ -412,6 +433,15 @@ namespace TourBookingManagment.Migrations
                         .IsUnique();
 
                     b.ToTable("UserDetails");
+                });
+
+            modelBuilder.Entity("TourBookingManagment.Model.TouristPlace", b =>
+                {
+                    b.HasOne("TourBookingManagment.Model.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TourBookingManagment.Model.UserDetails", b =>

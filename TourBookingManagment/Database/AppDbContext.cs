@@ -46,6 +46,27 @@ namespace TourBookingManagment.Database
                 entity.Property(e => e.Message).IsRequired();
                 entity.Property(e => e.CreatedAt).IsRequired();
             });
+
+            modelBuilder.Entity<Country>(entity =>
+            {
+                entity.HasKey(e => e.CountryId);
+                entity.Property(e => e.CountryId).IsRequired();
+            });
+
+            modelBuilder.Entity<Country>(entity =>
+            {
+                entity.HasKey(e => e.CountryId);
+                entity.Property(e => e.CountryId).IsRequired();
+            });
+
+            modelBuilder.Entity<TouristPlace>(entity =>
+            {
+                entity.HasKey(e => e.PlaceId);
+                entity.HasOne<Country>()
+                      .WithMany()
+                      .HasForeignKey(p => p.CountryId)
+                      .IsRequired();
+            });
         }
     }
 }
