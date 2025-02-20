@@ -35,10 +35,18 @@ namespace TourBookingManagment.Controllers
         [HttpPost]
         public async Task<ActionResult<TouristPlace>> PostTouristPlace(TouristPlace touristPlace)
         {
+            // Check if the CountryId exists in the Countries table
+            var country = await _context.Countries.FindAsync(touristPlace.CountryId);
+            if (country == null)
+            {
+                return BadRequest($"Country with ID {touristPlace.CountryId} does not exist.");
+            }
+
             _context.TouristPlaces.Add(touristPlace);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetTouristPlace), new { id = touristPlace.PlaceId }, touristPlace);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTouristPlace(int id, TouristPlace touristPlace)
