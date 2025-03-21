@@ -109,9 +109,9 @@ namespace TourBookingManagment.Controllers
                 worksheet.Cell(1, 3).Value = "Customer Name";
                 worksheet.Cell(1, 4).Value = "Rating";
                 worksheet.Cell(1, 5).Value = "Review Text";
-                worksheet.Cell(1, 6).Value = "Created At";
-                worksheet.Cell(1, 7).Value = "User Image";
-                worksheet.Cell(1, 8).Value = "Date";
+                //worksheet.Cell(1, 6).Value = "Created At";
+                //worksheet.Cell(1, 7).Value = "User Image";
+                //worksheet.Cell(1, 8).Value = "Date";
 
                 // Add data
                 for (int i = 0; i < reviews.Count; i++)
@@ -124,9 +124,9 @@ namespace TourBookingManagment.Controllers
                     worksheet.Cell(row, 3).Value = review.CustomerName;
                     worksheet.Cell(row, 4).Value = review.Rating;
                     worksheet.Cell(row, 5).Value = review.ReviewText;
-                    worksheet.Cell(row, 6).Value = review.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
-                    worksheet.Cell(row, 7).Value = review.UserImage ?? "";
-                    worksheet.Cell(row, 8).Value = review.Date.ToString("yyyy-MM-dd HH:mm:ss");
+                    //worksheet.Cell(row, 6).Value = review.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
+                    //worksheet.Cell(row, 7).Value = review.UserImage ?? "";
+                    //worksheet.Cell(row, 8).Value = review.Date.ToString("yyyy-MM-dd HH:mm:ss");
                 }
 
                 // Format columns

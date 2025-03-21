@@ -19,20 +19,23 @@ namespace TourBookingManagment.Services
             _hubContext = hubContext;
         }
 
-        public async Task SaveNotification(int bookingId, string message)
+        public async Task SaveNotification(int bookingId, string message, string userName)
         {
+            if (string.IsNullOrEmpty(userName))
+            {
+                throw new ArgumentException("UserName cannot be null or empty", nameof(userName));
+            }
+
             var notification = new Notification
             {
                 BookingId = bookingId,
                 Message = message,
+                UserName = userName,
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
-
-            // Broadcast the notification in real-time
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", message);
         }
 
         public async Task<List<Notification>> GetNotificationsByBookingId(int bookingId)
@@ -41,6 +44,11 @@ namespace TourBookingManagment.Services
                 .Where(n => n.BookingId == bookingId)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
+        }
+
+        public async Task SaveNotification(int bookingId, string message)
+        {
+            throw new NotImplementedException();
         }
     }
 }

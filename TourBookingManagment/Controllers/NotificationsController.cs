@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using TourBookingManagment.Hub;
 using TourBookingManagment.Hub.TourBookingManagment.Hub;
 using TourBookingManagment.Interface;
 using TourBookingManagment.Model;
@@ -9,7 +10,7 @@ namespace TourBookingManagment.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _notificationService;
